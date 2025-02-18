@@ -6,8 +6,29 @@ def adicionar_produto():
     quantidade = int(input("Digite a quantidade em estoque: "))
 
     estoque[nome] = {"preco": preco, "quantidade": quantidade}
-    print(f'✅ Produto {nome} adicionado com sucesso')
+    print(f'✅ Produto {nome} adicionado com sucesso!')
 
+def atualizar_produto():
+    nome = input("Digite o nome do produto que deseja atualizar: ").strip()
+    if nome not in estoque:
+        print(f'❌ Produto não localizado!')
+        return
+    
+    preco = float(input("Novo preço do produto: "))
+    quantidade = int(input("Nova quantidade em estoque: "))
+
+    estoque[nome]["preco"] = preco
+    estoque[nome]["quantidade"] = quantidade
+    print(f'✅ Produto {nome} atualizado com sucesso!')
+    
+def excluir_produto():
+    nome = input("Digite o nome do produto que deseja excluir: ").strip()
+    if nome in estoque:
+        del estoque[nome]
+        print(f'✅ Produto {nome} exluído com sucesso!')
+    else:
+        print(f'❌ Produto não localizado!')
+        return
 
 def menu():
     while True:
@@ -21,9 +42,9 @@ def menu():
         if opcao == "1":
             adicionar_produto()
         elif opcao == "2":
-            print("Você deseja atualizar um produto...")
+            atualizar_produto()
         elif opcao == "3":
-            print("Você deseja excluir um produto...")
+            excluir_produto()
         elif opcao == "4":
             print("Você deseja visualizar o estoque...")
         elif opcao == "5":
