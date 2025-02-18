@@ -1,12 +1,31 @@
 estoque = {}
 
 def adicionar_produto():
-    nome = input("Digite o nome do produto: ").strip()
-    preco = float(input("Digite o preço do produto: "))
-    quantidade = int(input("Digite a quantidade em estoque: "))
+    while True:  
+      nome = input("Digite o nome do produto: ").strip()
+      
+      if not any(c.isalpha() for c in nome):
+          print("❌ Nome Inválido! O produto deve conter apenas letras.")
+          continue
+      
+      if nome in estoque:
+          print("❌ Produto já cadastrado! Use a opção de atualizar.")
+          return
+      
+      try:
+        preco = float(input("Digite o preço do produto: "))
+        quantidade = int(input("Digite a quantidade em estoque: "))
 
-    estoque[nome] = {"preco": preco, "quantidade": quantidade}
-    print(f'✅ Produto {nome} adicionado com sucesso!')
+        if preco < 0 or quantidade < 0:
+            print("❌ Preço e quantidade devem ser valores positivos")
+            return
+
+        estoque[nome] = {"preco": preco, "quantidade": quantidade}
+        print(f'✅ Produto {nome} adicionado com sucesso!')
+        break
+
+      except ValueError:
+          print("❌ Erro! Insira valores numéricos para preço e quantidade!")
 
 def atualizar_produto():
     nome = input("Digite o nome do produto que deseja atualizar: ").strip()
