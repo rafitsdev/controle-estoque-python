@@ -1,7 +1,7 @@
 import json
 
 """PERSISTÊNCIA DE DADOS"""
-ARQUIVO_ESTOQUE = "estoque.json"
+ARQUIVO_ESTOQUE = "data/estoque.json"
 
 try:
     with open(ARQUIVO_ESTOQUE, "r") as file:
