@@ -16,91 +16,113 @@ def salvar_estoque():
 
 """Permite o usuário tentar novamente"""
 def tentar_novamente(mensagem):
-    resposta = input(mensagem).strip().lower()
-    if resposta == "s":
-        return True
-    else:
-        print("\n⬅ Voltando ao menu...")
-        return False
+    while True:
+        resposta = input(mensagem).strip().lower()
+
+        if resposta == "s":
+            return True
+        
+        if resposta == "n":
+            print("\n⬅ Voltando ao menu...")
+            return False
+        
+        print(f'\n❌ Opção {resposta} inválida! Digite "s" para continuar ou "n" para voltar ao menu.')
 
 """FUNÇÕES BÁSICAS DO SISTEMA"""
 def adicionar_produto():
     while True:  
-      nome = input("\n➕ Digite o nome do produto: ").strip()
-      
-      if not any(c.isalpha() for c in nome):
-          print("❌ Nome Inválido! O produto deve conter pelo menos uma letra.")
-          continue
-      
-      if nome in estoque:
-          print("❌ Produto já cadastrado! Use a opção de atualizar.")
-          if not tentar_novamente("\n🔁 Gostaria de adicionar outro produto? (s/n) "):
-            return
-      else:
+        nome = input("\n➕ Digite o nome do produto: ").strip()
+        
+        if not any(c.isalpha() for c in nome):
+            print("❌ Nome Inválido! O produto deve conter pelo menos uma letra.")
+            continue
+        
+        if nome in estoque:
+            print("❌ Produto já cadastrado! Use a opção de atualizar para esse produto caso necessite")
+            if not tentar_novamente("\n🔁 Gostaria de adicionar outro produto? (s/n) "):
+                return
+
         try:
             preco = float(input("💲 Digite o preço do produto: "))
             quantidade = int(input("📦 Digite a quantidade em estoque: "))
 
             if preco < 0 or quantidade < 0:
-                print("❌ Preço e quantidade devem ser valores positivos, tente novamente:")
+                print("❌ Preço e quantidade devem ser valores positivos, tente novamente:\n")
                 continue
 
-            estoque[nome] = {"preco": preco, "quantidade": quantidade}
+            novo_id = str(max(map(int, estoque.keys()), default=0) + 1)
+
+            estoque[novo_id] ={"nome": nome, "preco": preco, "quantidade": quantidade}
             salvar_estoque()
-            print(f'✅ Produto {nome} adicionado com sucesso!')
+            print(f'✅ Produto {nome} (ID: {novo_id}) adicionado com sucesso!')
 
         except ValueError:
             print("❌ Erro! Insira valores numéricos para preço e quantidade!")
+            continue
 
-      if not tentar_novamente("\n🔁 Gostaria de adicionar outro produto? (s/n) "):
-        return
+        if not tentar_novamente("\n🔁 Gostaria de adicionar outro produto? (s/n) "):
+            return
 
 def atualizar_produto():
     while True:
-        nome = input("\n🔎 Digite o nome do produto que você deseja atualizar: ").strip()
+        id_produto = input("\n🔎 Digite o ID do produto que você deseja atualizar: ").strip()
 
-        if nome not in estoque:
-            print(f'❌ Não encontramos esse produto em estoque!')
-            resposta= input("\n🔁 Deseja tentar com outro produto? (s/n) ").strip().lower()
-            if resposta != "s":
-                print("\n⬅ Voltando ao menu...")
+        if id_produto not in estoque:
+            print(f'❌ Não encontramos esse produto no estoque!')
+            if not tentar_novamente("\n🔁 Deseja tentar com outro produto? (s/n) "):
                 return
             continue
 
-        else:
-            try:
-                preco = float(input("💲 Novo preço do produto: "))
-                quantidade = int(input("📦 Nova quantidade em estoque: "))
-
-                if preco < 0 or quantidade < 0:
-                    print("❌ Preço e quantidade devem ser números positivos.")
+        try:
+            if tentar_novamente("\n🖋 Deseja alterar o nome do produto? (s/n)"):
+                novo_nome = input("🖋 Digite o novo nome do produto: ")
+                if not any(c.isalpha() for c in novo_nome):
+                    print("❌ Nome Inválido! O produto deve conter pelo menos uma letra.")
                     continue
                 
-                estoque[nome]["preco"] = preco
-                estoque[nome]["quantidade"] = quantidade
-                salvar_estoque()
-                print(f'✅ Produto {nome} atualizado com sucesso!')
-                return
+                estoque[id_produto]["nome"] = novo_nome
 
-            except ValueError:
-                print("❌ Erro! Insira valores numéricos válidos")
+            preco = float(input("💲 Novo preço do produto: "))
+            quantidade = int(input("📦 Nova quantidade em estoque: "))
+
+            if preco < 0 or quantidade < 0:
+                print("❌ Preço e quantidade devem ser números positivos.")
+                continue
+            
+            estoque[id_produto]["preco"] = preco
+            estoque[id_produto]["quantidade"] = quantidade
+            salvar_estoque()
+            print(f'✅ Produto {estoque[id_produto]["nome"]} (ID: {id_produto}) atualizado com sucesso!')
+            return
+
+        except ValueError:
+            print("❌ Erro! Insira valores numéricos válidos")
+
+        if not tentar_novamente("\n🔁 Gostaria de alterar outro produto? (s/n) "):
+            return
     
 def excluir_produto():
     while True:    
-        nome = input("\n☠ Digite o nome do produto que deseja excluir: ").strip()
+        id_produto = input("\n☠ Digite o ID do produto que deseja excluir: ").strip()
 
-        if nome in estoque:
-            del estoque[nome]
+        if id_produto in estoque:
+            nome_produto = estoque[id_produto]["nome"]
+            del estoque[id_produto]
+
+            novo_estoque = {}
+            for novo_id, (_, dados) in enumerate(sorted(estoque.items(), key=lambda x: int(x[0])), start=1):
+                novo_estoque[str(novo_id)] = dados.copy()
+
+            estoque.clear()
+            estoque.update(novo_estoque)
             salvar_estoque()
-            print(f'✅ Produto {nome} exlcuído com sucesso!\n')
+
+            print(f'✅ Produto {nome_produto} (ID: {id_produto}) excluído com sucesso!\n')
             print("⬅ Voltando ao menu...")
             return
-        
-        else:
-            resposta = input(f'❌ Produto não localizado!\n🔁 Gostaria de tentar com um outro produto? (s/n) ').strip().lower()
-            if resposta != "s":
-                print("⬅ Voltando ao menu...")
-                return
+
+        if not tentar_novamente(f'❌ ID do produto não localizado!\n🔁 Gostaria de tentar com um outro produto? (s/n) '):
+            return
 
 def visualizar_estoque():
     if not estoque:
@@ -108,8 +130,12 @@ def visualizar_estoque():
     else:
         print("\n📦 Estoque Atual:\n")
         print("-" * 100)
-        for nome, info in estoque.items():
-            print(f'🛒 Produto: {nome} | Preço: R${info['preco']:.2f} | Quantidade: {info['quantidade']}')
+        print(f'{"🆔":<8} {"🛒 Produto":<20} {"💰 Valor":<15} {"📦 Quantidade"}')
+        print("-" * 100)
+
+        for id_produto, info in estoque.items():
+            print(f' {id_produto:<8} {info["nome"]:<21} {info["preco"]:<16.2f} {info["quantidade"]:<10}')
+            
         print("-" * 100)
 
 
